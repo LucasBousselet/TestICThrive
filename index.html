@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+    <div class='container' style="width: 500px">
+        <br>
+        <h1 class='display-4'>URL Shortener</h1>
+        <br>
+        <p>Please copy paste a long URL in the field below</p>
+        <input style="width:500px" id='longUrl' placeholder="Your long url ...">
+        <button id='shortenUrl'>Shorten</button>       
+    </div>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src='/socket.io/socket.io.js'></script>
+    <script>
+        var socket = io.connect('http://localhost:8080');
+        
+        socket.on('returnShortUrl', function(url) {
+            var newLine = "\r\n"
+            var msg = "You can now copy paste your shortened URL"
+            msg += newLine;
+            msg += "Make sure you copy the link before closing this popup";
+            msg += newLine;
+            msg += "Just copy paste this URL in your browser to be redirected";
+            msg+= newLine;
+            msg+= newLine;
+            msg+= newLine;
+            msg += url;
+            alert(msg);
+        });
+        
+        /***
+         * Here we use the Web Socket to transmit the longUrl to the server. Reasons for this choice include:
+         *  - the URL may be very long (>250 characters), and some browser may not support it
+         *  - the response of the API may take awhile, so we don't have to wait for a 
+         *     response right away, the server will notify us when it is done.
+         ***/ 
+        $('#shortenUrl').click(function () {
+            var input = document.querySelector('#longUrl');
+            socket.emit('shortenUrl', input.value);
+            input.value = '';
+        });
+    </script>
+</body>
+</html>
